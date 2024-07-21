@@ -43,7 +43,7 @@
 <div id="addProductModal" class="modal">
     <div class="modal-content">
         <h2>添加商品</h2>
-        <form id="addProductForm">
+        <form id="addProductForm" action="{{ url_for('product.add_product') }}" method="POST">
             <label for="name">名称:</label>
             <input type="text" id="name" name="name" required>
 
@@ -76,7 +76,7 @@
 <div id="editProductModal" class="modal">
     <div class="modal-content">
         <h2>修改商品</h2>
-        <form id="editProductForm">
+        <form id="editProductForm" action="{{ url_for('product.edit_product', id=0) }}" method="POST">
             <input type="hidden" id="editProductId" name="id">
 
             <label for="editName">名称:</label>
@@ -111,111 +111,154 @@
 
 {% block scripts %}
 <script>
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+async function postData(url, data) {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(data),
+    });
+    return response.json();
+}
+
+async function getData(url) {
+    const response = await fetch(url);
+    return response.json();
+}
+
+function refreshTable(data) {
+    const tbody = document.querySelector('#productTable tbody');
+    tbody.innerHTML = '';
+    data.forEach(product => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${product.id}</td>
+            <td>${product.name}</td>
+            <td>${product.category}</td>
+            <td>${product.price}</td>
+            <td>${product.stock}</td>
+            <td>${product.supplier}</td>
+            <td>
+                <button class="editProductBtn" data-id="${product.id}">修改</button>
+                <button class="deleteProductBtn" data-id="${product.id}">删除</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
     // 添加商品
-    document.getElementById('addProductBtn').addEventListener('click', function () {
-        document.getElementById('addProductModal').style.display = 'block';
+    document.getElementById('addProductBtn').addEventListener('click', function() {
+        openModal('addProductModal');
     });
 
-    document.getElementById('addProductForm').addEventListener('submit', function (e) {
+    document.getElementById('addProductForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        fetch("{{ url_for('product.add_product') }}", {
-            method: 'POST',
-            body: new FormData(this)
-        }).then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('添加商品失败');
-                }
-            });
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+        try {
+            const result = await postData(this.action, data);
+            if (result.success) {
+                alert('添加商品成功');
+                location.reload();
+            } else {
+                alert('添加商品失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('发生错误，请稍后再试');
+        }
     });
 
     // 修改商品
-    document.querySelectorAll('.editProductBtn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const productId = this.getAttribute('data-id');
-            fetch(`/product/${productId}`)
-                .then(response => response.json())
-                .then(product => {
-                    document.getElementById('editProductId').value = product.product_id;
-                    document.getElementById('editName').value = product.name;
-                    document.getElementById('editCategory').value = product.category_id;
-                    document.getElementById('editPrice').value = product.price;
-                    document.getElementById('editStock').value = product.stock;
-                    document.getElementById('editSupplier').value = product.supplier_id;
-                    document.getElementById('editProductModal').style.display = 'block';
-                });
-        });
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('editProductBtn')) {
+            const productId = e.target.getAttribute('data-id');
+            try {
+                const product = await getData(`/product/${productId}`);
+                document.getElementById('editProductId').value = product.product_id;
+                document.getElementById('editName').value = product.name;
+                document.getElementById('editCategory').value = product.category_id;
+                document.getElementById('editPrice').value = product.price;
+                document.getElementById('editStock').value = product.stock;
+                document.getElementById('editSupplier').value = product.supplier_id;
+                openModal('editProductModal');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('获取商品信息失败，请稍后再试');
+            }
+        }
     });
 
-    document.getElementById('editProductForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const productId = document.getElementById('editProductId').value;
-        fetch(`{{ url_for('product.edit_product', id=0) }}`.replace('0', productId), {
-            method: 'POST',
-            body: new FormData(this)
-        }).then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('修改商品失败');
-                }
-            });
-    });
+   document.getElementById('editProductForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const productId = formData.get('id');
+    const data = Object.fromEntries(formData.entries());
+    try {
+        const result = await postData(this.action.replace('0', productId), data);
+        if (result.success) {
+            alert('修改商品成功');
+            location.reload();
+        } else {
+            alert('修改商品失败: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('发生错误，请稍后再试');
+    }
+});
 
     // 删除商品
-    document.querySelectorAll('.deleteProductBtn').forEach(btn => {
-        btn.addEventListener('click', function () {
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('deleteProductBtn')) {
             if (confirm('确定要删除这个商品吗？')) {
-                const productId = this.getAttribute('data-id');
-                fetch(`{{ url_for('product.delete_product', id=0) }}`.replace('0', productId), {
-                    method: 'POST'
-                }).then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('删除商品失败');
-                        }
-                    });
+                const productId = e.target.getAttribute('data-id');
+                try {
+                    const result = await postData(`{{ url_for('product.delete_product', id=0) }}`.replace('0', productId), {});
+                    if (result.success) {
+                        alert('删除商品成功');
+                        location.reload();
+                    } else {
+                        alert('删除商品失败: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('发生错误，请稍后再试');
+                }
             }
-        });
+        }
     });
 
     // 搜索商品
-    document.getElementById('searchProduct').addEventListener('input', function() {
+    document.getElementById('searchProduct').addEventListener('input', async function() {
         const query = this.value;
-        fetch(`{{ url_for('product.search_product') }}?query=${query}`)
-        .then(response => response.json())
-        .then(products => {
-            const tbody = document.querySelector('#productTable tbody');
-            tbody.innerHTML = '';
-            products.forEach(product => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${product.id}</td>
-                    <td>${product.name}</td>
-                    <td>${product.category}</td>
-                    <td>${product.price}</td>
-                    <td>${product.stock}</td>
-                    <td>${product.supplier}</td>
-                    <td>
-                        <button class="editProductBtn" data-id="${product.id}">修改</button>
-                        <button class="deleteProductBtn" data-id="${product.id}">删除</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        });
+        try {
+            const products = await getData(`{{ url_for('product.search_product') }}?query=${query}`);
+            refreshTable(products);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('搜索出错，请稍后再试');
+        }
     });
 
     // 关闭模态框
     document.querySelectorAll('.closeModal').forEach(btn => {
-        btn.addEventListener('click', function () {
-            this.closest('.modal').style.display = 'none';
+        btn.addEventListener('click', function() {
+            closeModal(this.closest('.modal').id);
         });
     });
+});
 </script>
 {% endblock %}

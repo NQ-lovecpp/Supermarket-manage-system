@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify
 from app import db
 from app.models import Supplier
 
@@ -11,36 +11,58 @@ def suppliers():
 
 @bp.route('/supplier/add', methods=['POST'])
 def add_supplier():
-    name = request.form['name']
-    contact_person = request.form['contact_person']
-    phone = request.form['phone']
-    address = request.form['address']
+    try:
+        data = request.json
+        new_supplier = Supplier(
+            name=data['name'],
+            contact_person=data['contact_person'],
+            phone=data['phone'],
+            address=data['address']
+        )
+        db.session.add(new_supplier)
+        db.session.commit()
+        return jsonify({'success': True, 'message': '供应商添加成功'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'添加供应商失败: {str(e)}'}), 400
 
-    new_supplier = Supplier(name=name, contact_person=contact_person, phone=phone, address=address)
-    db.session.add(new_supplier)
-    db.session.commit()
-
-    return jsonify({'success': True})
+@bp.route('/supplier/<int:id>', methods=['GET'])
+def get_supplier(id):
+    supplier = Supplier.query.get_or_404(id)
+    return jsonify({
+        'supplier_id': supplier.supplier_id,
+        'name': supplier.name,
+        'contact_person': supplier.contact_person,
+        'phone': supplier.phone,
+        'address': supplier.address
+    })
 
 @bp.route('/supplier/edit/<int:id>', methods=['POST'])
 def edit_supplier(id):
-    supplier = Supplier.query.get_or_404(id)
-    supplier.name = request.form['name']
-    supplier.contact_person = request.form['contact_person']
-    supplier.phone = request.form['phone']
-    supplier.address = request.form['address']
+    try:
+        data = request.json
+        supplier = Supplier.query.get_or_404(id)
+        supplier.name = data['name']
+        supplier.contact_person = data['contact_person']
+        supplier.phone = data['phone']
+        supplier.address = data['address']
 
-    db.session.commit()
-
-    return jsonify({'success': True})
+        db.session.commit()
+        return jsonify({'success': True, 'message': '供应商修改成功'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'修改供应商失败: {str(e)}'}), 400
 
 @bp.route('/supplier/delete/<int:id>', methods=['POST'])
 def delete_supplier(id):
-    supplier = Supplier.query.get_or_404(id)
-    db.session.delete(supplier)
-    db.session.commit()
-
-    return jsonify({'success': True})
+    try:
+        supplier = Supplier.query.get_or_404(id)
+        db.session.delete(supplier)
+        db.session.commit()
+        return jsonify({'success': True, 'message': '供应商删除成功'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'删除供应商失败: {str(e)}'}), 400
 
 @bp.route('/supplier/search')
 def search_supplier():
