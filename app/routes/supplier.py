@@ -1,16 +1,18 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, current_app
 from app import db
 from app.models import Supplier
 
-bp = Blueprint('supplier', __name__)
+bp = Blueprint('supplier', __name__, url_prefix='/supplier')
 
-@bp.route('/suppliers')
+@bp.route('/')
 def suppliers():
+    current_app.logger.info('Accessing suppliers page')
     suppliers = Supplier.query.all()
     return render_template('supplier.html', suppliers=suppliers)
 
-@bp.route('/supplier/add', methods=['POST'])
+@bp.route('/add', methods=['POST'])
 def add_supplier():
+    current_app.logger.info('Adding new supplier')
     try:
         data = request.json
         new_supplier = Supplier(
@@ -21,13 +23,16 @@ def add_supplier():
         )
         db.session.add(new_supplier)
         db.session.commit()
+        current_app.logger.info(f'Supplier added successfully: {new_supplier.name}')
         return jsonify({'success': True, 'message': '供应商添加成功'})
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f'Error adding supplier: {str(e)}')
         return jsonify({'success': False, 'message': f'添加供应商失败: {str(e)}'}), 400
 
-@bp.route('/supplier/<int:id>', methods=['GET'])
+@bp.route('/<int:id>', methods=['GET'])
 def get_supplier(id):
+    current_app.logger.info(f'Fetching supplier with id: {id}')
     supplier = Supplier.query.get_or_404(id)
     return jsonify({
         'supplier_id': supplier.supplier_id,
@@ -37,8 +42,9 @@ def get_supplier(id):
         'address': supplier.address
     })
 
-@bp.route('/supplier/edit/<int:id>', methods=['POST'])
+@bp.route('/edit/<int:id>', methods=['POST'])
 def edit_supplier(id):
+    current_app.logger.info(f'Editing supplier with id: {id}')
     try:
         data = request.json
         supplier = Supplier.query.get_or_404(id)
@@ -48,25 +54,31 @@ def edit_supplier(id):
         supplier.address = data['address']
 
         db.session.commit()
+        current_app.logger.info(f'Supplier edited successfully: {supplier.name}')
         return jsonify({'success': True, 'message': '供应商修改成功'})
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f'Error editing supplier: {str(e)}')
         return jsonify({'success': False, 'message': f'修改供应商失败: {str(e)}'}), 400
 
-@bp.route('/supplier/delete/<int:id>', methods=['POST'])
+@bp.route('/delete/<int:id>', methods=['POST'])
 def delete_supplier(id):
+    current_app.logger.info(f'Deleting supplier with id: {id}')
     try:
         supplier = Supplier.query.get_or_404(id)
         db.session.delete(supplier)
         db.session.commit()
+        current_app.logger.info(f'Supplier deleted successfully: {supplier.name}')
         return jsonify({'success': True, 'message': '供应商删除成功'})
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f'Error deleting supplier: {str(e)}')
         return jsonify({'success': False, 'message': f'删除供应商失败: {str(e)}'}), 400
 
-@bp.route('/supplier/search')
+@bp.route('/search')
 def search_supplier():
     query = request.args.get('query', '')
+    current_app.logger.info(f'Searching suppliers with query: {query}')
     suppliers = Supplier.query.filter(
         (Supplier.name.ilike(f'%{query}%')) |
         (Supplier.contact_person.ilike(f'%{query}%'))

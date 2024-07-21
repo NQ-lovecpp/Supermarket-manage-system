@@ -7,7 +7,7 @@ bp = Blueprint('product', __name__)  # 修正这里的 __name__
 @bp.route('/products')
 def products():
     products = Product.query.all()
-    categories = Category.query.all()
+    categories = Category.query.distinct(Category.name).all()
     suppliers = Supplier.query.all()
     return render_template('product.html', products=products, categories=categories, suppliers=suppliers)
 

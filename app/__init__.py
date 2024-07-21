@@ -7,13 +7,31 @@ from logging.handlers import RotatingFileHandler
 
 db = SQLAlchemy()
 
+
 def create_app():
-    app = Flask(__name__, static_folder='static')
+    app = Flask(__name__, static_folder='static',static_url_path='/static')
     app.config.from_object(Config)
 
     db.init_app(app)
 
     # 设置日志
+    configure_logging(app)
+
+    # 注册蓝图
+    register_blueprints(app)
+
+    # 注册路由
+    @app.route('/')
+    def index():
+        return render_template('index.html')
+
+    # 添加错误处理
+    register_error_handlers(app)
+
+    return app
+
+
+def configure_logging(app):
     if not app.debug:
         if not os.path.exists('logs'):
             os.mkdir('logs')
@@ -22,24 +40,30 @@ def create_app():
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('Supermarket startup')
 
-    # 注册蓝图
-    from app.routes import product, supplier, employee, purchase, sale, inventory, analysis
-    app.register_blueprint(product.bp)
-    app.register_blueprint(supplier.bp)
-    app.register_blueprint(employee.bp)
-    app.register_blueprint(purchase.bp)
-    app.register_blueprint(sale.bp)
-    app.register_blueprint(inventory.bp)
-    app.register_blueprint(analysis.bp)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('Supermarket startup')
 
-    @app.route('/')
-    def index():
-        return render_template('index.html')
 
-    # 添加错误处理
+def register_blueprints(app):
+    from app.routes import product, supplier, employee, purchase, sale, inventory, analysis, dashboard
+
+    blueprints = [
+        product.bp,
+        supplier.bp,
+        employee.bp,
+        purchase.bp,
+        sale.bp,
+        inventory.bp,
+        analysis.bp,
+        dashboard.bp
+    ]
+
+    for blueprint in blueprints:
+        app.register_blueprint(blueprint)
+
+
+def register_error_handlers(app):
     @app.errorhandler(404)
     def not_found_error(error):
         return render_template('404.html'), 404
@@ -48,5 +72,3 @@ def create_app():
     def internal_error(error):
         db.session.rollback()
         return render_template('500.html'), 500
-
-    return app

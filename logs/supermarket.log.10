@@ -1,0 +1,100 @@
+2024-07-18 21:25:37,409 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:25:38,406 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:25:40,491 INFO: Rendering analysis page [in E:\My struggle\数据库课设\app\routes\analysis.py:99]
+2024-07-18 21:25:42,768 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:104]
+2024-07-18 21:25:42,781 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:131]
+2024-07-18 21:25:42,789 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:161]
+2024-07-18 21:25:42,829 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:230]
+2024-07-18 21:25:42,840 ERROR: Error in generate_report: a bytes-like object is required, not 'str' [in E:\My struggle\数据库课设\app\routes\analysis.py:299]
+2024-07-18 21:25:42,841 ERROR: Traceback (most recent call last):
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 282, in generate_report
+    output = generate_csv_report(report_data)
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 318, in generate_csv_report
+    write_row(["销售趋势"])
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 315, in write_row
+    writer.writerow([str(item).encode('utf-8') for item in row])
+TypeError: a bytes-like object is required, not 'str'
+ [in E:\My struggle\数据库课设\app\routes\analysis.py:300]
+2024-07-18 21:26:21,107 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:26:42,509 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:30:44,505 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:30:44,819 INFO: Rendering analysis page [in E:\My struggle\数据库课设\app\routes\analysis.py:20]
+2024-07-18 21:30:46,781 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:30:47,168 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:30:47,182 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:30:47,220 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]
+2024-07-18 21:30:47,231 ERROR: Error in generate_report: a bytes-like object is required, not 'str' [in E:\My struggle\数据库课设\app\routes\analysis.py:221]
+2024-07-18 21:30:47,232 ERROR: Traceback (most recent call last):
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 203, in generate_report
+    output = generate_csv_report(report_data)
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 236, in generate_csv_report
+    write_row(["销售趋势"])
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 233, in write_row
+    writer.writerow([str(item).encode('utf-8') for item in row])
+TypeError: a bytes-like object is required, not 'str'
+ [in E:\My struggle\数据库课设\app\routes\analysis.py:222]
+2024-07-18 21:31:48,199 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:31:49,150 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:31:52,805 INFO: Rendering analysis page [in E:\My struggle\数据库课设\app\routes\analysis.py:20]
+2024-07-18 21:31:53,769 INFO: Customer behavior analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:180]
+2024-07-18 21:31:53,770 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:31:53,772 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:31:53,775 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:31:53,778 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]
+2024-07-18 21:31:57,167 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:31:57,179 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:31:57,189 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:31:57,220 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]
+2024-07-18 21:31:57,240 ERROR: Error in generate_report: a bytes-like object is required, not 'str' [in E:\My struggle\数据库课设\app\routes\analysis.py:221]
+2024-07-18 21:31:57,243 ERROR: Traceback (most recent call last):
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 203, in generate_report
+    output = generate_csv_report(report_data)
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 236, in generate_csv_report
+    write_row(["销售趋势"])
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 233, in write_row
+    writer.writerow([str(item).encode('utf-8') for item in row])
+TypeError: a bytes-like object is required, not 'str'
+ [in E:\My struggle\数据库课设\app\routes\analysis.py:222]
+2024-07-18 21:32:05,301 INFO: Rendering analysis page [in E:\My struggle\数据库课设\app\routes\analysis.py:20]
+2024-07-18 21:38:14,929 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:38:19,104 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:38:19,876 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:38:20,206 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:38:20,216 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:38:20,251 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]
+2024-07-18 21:38:20,264 ERROR: Error in generate_report: generate_csv_report() takes 1 positional argument but 2 were given [in E:\My struggle\数据库课设\app\routes\analysis.py:227]
+2024-07-18 21:38:20,265 ERROR: Traceback (most recent call last):
+  File "E:\My struggle\数据库课设\app\routes\analysis.py", line 208, in generate_report
+    generate_csv_report(temp_file, report_data)
+TypeError: generate_csv_report() takes 1 positional argument but 2 were given
+ [in E:\My struggle\数据库课设\app\routes\analysis.py:228]
+2024-07-18 21:38:53,574 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:38:53,905 INFO: Rendering analysis page [in E:\My struggle\数据库课设\app\routes\analysis.py:20]
+2024-07-18 21:38:54,938 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:38:55,041 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:38:55,056 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:38:55,094 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]
+2024-07-18 21:39:35,174 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:47:50,218 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:48:49,017 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:48:49,763 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:48:52,979 INFO: Rendering analysis page [in E:\My struggle\数据库课设\app\routes\analysis.py:20]
+2024-07-18 21:48:54,115 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:48:54,117 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:48:54,122 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:48:54,125 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]
+2024-07-18 21:48:54,145 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:48:54,148 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:48:54,158 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:48:54,166 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]
+2024-07-18 21:50:04,929 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:50:05,607 INFO: Supermarket startup [in E:\My struggle\数据库课设\app\__init__.py:45]
+2024-07-18 21:50:09,737 INFO: Rendering analysis page [in E:\My struggle\数据库课设\app\routes\analysis.py:20]
+2024-07-18 21:50:11,332 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:50:11,335 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:50:11,337 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:50:11,339 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]
+2024-07-18 21:50:11,363 INFO: Top products analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:52]
+2024-07-18 21:50:11,380 INFO: Employee performance analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:82]
+2024-07-18 21:50:11,389 INFO: Sales trend analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:25]
+2024-07-18 21:50:11,402 INFO: Inventory turnover analysis requested [in E:\My struggle\数据库课设\app\routes\analysis.py:151]

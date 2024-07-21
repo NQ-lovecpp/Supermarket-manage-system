@@ -41,7 +41,7 @@
 <div id="addSupplierModal" class="modal">
     <div class="modal-content">
         <h2>添加供应商</h2>
-        <form id="addSupplierForm" action="{{ url_for('supplier.add_supplier') }}" method="POST">
+        <form id="addSupplierForm">
             <label for="name">名称:</label>
             <input type="text" id="name" name="name" required>
 
@@ -63,7 +63,7 @@
 <div id="editSupplierModal" class="modal">
     <div class="modal-content">
         <h2>修改供应商</h2>
-        <form id="editSupplierForm" action="{{ url_for('supplier.edit_supplier', id=0) }}" method="POST">
+        <form id="editSupplierForm">
             <input type="hidden" id="editSupplierId" name="id">
 
             <label for="editName">名称:</label>
@@ -88,62 +88,21 @@
 
 {% block scripts %}
 <script>
-function openModal(modalId) {
-    document.getElementById(modalId).style.display = 'block';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-
-async function postData(url, data) {
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify(data),
-    });
-    return response.json();
-}
-
-async function getData(url) {
-    const response = await fetch(url);
-    return response.json();
-}
-
-function refreshTable(data) {
-    const tbody = document.querySelector('#supplierTable tbody');
-    tbody.innerHTML = '';
-    data.forEach(supplier => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${supplier.id}</td>
-            <td>${supplier.name}</td>
-            <td>${supplier.contact_person}</td>
-            <td>${supplier.phone}</td>
-            <td>${supplier.address}</td>
-            <td>
-                <button class="editSupplierBtn" data-id="${supplier.id}">修改</button>
-                <button class="deleteSupplierBtn" data-id="${supplier.id}">删除</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Supplier page loaded');
+
     // 添加供应商
     document.getElementById('addSupplierBtn').addEventListener('click', function() {
+        console.log('Add supplier button clicked');
         openModal('addSupplierModal');
     });
 
     document.getElementById('addSupplierForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        console.log('Add supplier form submitted');
         const formData = new FormData(this);
         try {
-            const result = await postData(this.action, Object.fromEntries(formData));
+            const result = await postData("{{ url_for('supplier.add_supplier') }}", Object.fromEntries(formData));
             if (result.success) {
                 alert('添加供应商成功');
                 location.reload();
@@ -160,8 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', async function(e) {
         if (e.target.classList.contains('editSupplierBtn')) {
             const supplierId = e.target.getAttribute('data-id');
+            console.log('Edit supplier button clicked for ID:', supplierId);
             try {
-                const supplier = await getData(`/supplier/${supplierId}`);
+                const supplier = await getData("{{ url_for('supplier.get_supplier', id=0) }}".replace('0', supplierId));
                 document.getElementById('editSupplierId').value = supplier.supplier_id;
                 document.getElementById('editName').value = supplier.name;
                 document.getElementById('editContactPerson').value = supplier.contact_person;
@@ -177,10 +137,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('editSupplierForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        console.log('Edit supplier form submitted');
         const formData = new FormData(this);
         const supplierId = formData.get('id');
         try {
-            const result = await postData(this.action.replace('0', supplierId), Object.fromEntries(formData));
+            const result = await postData("{{ url_for('supplier.edit_supplier', id=0) }}".replace('0', supplierId), Object.fromEntries(formData));
             if (result.success) {
                 alert('修改供应商成功');
                 location.reload();
@@ -196,10 +157,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // 删除供应商
     document.addEventListener('click', async function(e) {
         if (e.target.classList.contains('deleteSupplierBtn')) {
+            const supplierId = e.target.getAttribute('data-id');
+            console.log('Delete supplier button clicked for ID:', supplierId);
             if (confirm('确定要删除这个供应商吗？')) {
-                const supplierId = e.target.getAttribute('data-id');
                 try {
-                    const result = await postData(`{{ url_for('supplier.delete_supplier', id=0) }}`.replace('0', supplierId), {});
+                    const result = await postData("{{ url_for('supplier.delete_supplier', id=0) }}".replace('0', supplierId), {});
                     if (result.success) {
                         alert('删除供应商成功');
                         location.reload();
@@ -217,9 +179,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // 搜索供应商
     document.getElementById('searchSupplier').addEventListener('input', async function() {
         const query = this.value;
+        console.log('Searching suppliers with query:', query);
         try {
             const suppliers = await getData(`{{ url_for('supplier.search_supplier') }}?query=${query}`);
-            refreshTable(suppliers);
+            refreshTable('supplierTable', suppliers, ['id', 'name', 'contact_person', 'phone', 'address']);
         } catch (error) {
             console.error('Error:', error);
             alert('搜索出错，请稍后再试');

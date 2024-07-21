@@ -7,4 +7,5 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
     # 其他配置...

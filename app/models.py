@@ -1,6 +1,6 @@
 from app import db
 from datetime import datetime
-
+import os
 class Category(db.Model):
     category_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
@@ -19,10 +19,10 @@ class Product(db.Model):
     price = db.Column(db.Numeric(10, 2))
     stock = db.Column(db.Integer)
     supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.supplier_id'))
+    alert_threshold = db.Column(db.Integer, default=0)  # 新增字段
 
     category = db.relationship('Category', backref='products')
     supplier = db.relationship('Supplier', backref='products')
-
 class Employee(db.Model):
     employee_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
@@ -51,3 +51,7 @@ class Sale(db.Model):
 
     product = db.relationship('Product', backref='sales')
     employee = db.relationship('Employee', backref='sales')
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///your_database.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
