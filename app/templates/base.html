@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Supermarket Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav>
+    <ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('product.products') }}">Products</a></li>
+        <li><a href="{{ url_for('supplier.suppliers') }}">Suppliers</a></li>
+        <li><a href="{{ url_for('employee.employees') }}">Employees</a></li>
+        <li><a href="{{ url_for('purchase.purchases') }}">Purchases</a></li>
+        <li><a href="{{ url_for('sale.sales') }}">Sales</a></li>
+        <li><a href="{{ url_for('inventory.inventory') }}">Inventory</a></li>
+        <li><a href="{{ url_for('analysis.analysis') }}">Analysis</a></li>
+    </ul>
+</nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Supermarket Management System</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

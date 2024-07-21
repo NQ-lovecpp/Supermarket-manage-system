@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Welcome to the Supermarket Management System</h1>
+<div class="dashboard">
+    <div class="dashboard-item">
+        <h2>Quick Links</h2>
+        <ul>
+            <li><a href="{{ url_for('product.products') }}">Manage Products</a></li>
+            <li><a href="{{ url_for('supplier.suppliers') }}">Manage Suppliers</a></li>
+            <li><a href="{{ url_for('employee.employees') }}">Manage Employees</a></li>
+        </ul>
+    </div>
+    <div class="dashboard-item">
+        <h2>Recent Sales</h2>
+        <!-- Add code to display recent sales -->
+    </div>
+    <div class="dashboard-item">
+        <h2>Low Stock Alert</h2>
+        <!-- Add code to display low stock items -->
+    </div>
+</div>
+{% endblock %}

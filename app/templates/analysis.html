@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}数据分析{% endblock %}
+
+{% block content %}
+<h1>数据分析</h1>
+
+<div class="analysis-controls">
+    <input type="date" id="startDate">
+    <input type="date" id="endDate">
+    <select id="intervalSelect">
+        <option value="day">日</option>
+        <option value="week">周</option>
+        <option value="month">月</option>
+    </select>
+    <button id="updateAnalysisBtn">更新分析</button>
+</div>
+
+<div class="analysis-charts">
+    <div id="salesTrendChart" style="width: 100%; height: 400px;"></div>
+    <div id="topProductsChart" style="width: 100%; height: 400px;"></div>
+    <div id="employeePerformanceChart" style="width: 100%; height: 400px;"></div>
+    <div id="inventoryTurnoverChart" style="width: 100%; height: 400px;"></div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+<script>
+    let salesTrendChart = echarts.init(document.getElementById('salesTrendChart'));
+    let topProductsChart = echarts.init(document.getElementById('topProductsChart'));
+    let employeePerformanceChart = echarts.init(document.getElementById('employeePerformanceChart'));
+    let inventoryTurnoverChart = echarts.init(document.getElementById('inventoryTurnoverChart'));
+
+    function updateAnalysis() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const interval = document.getElementById('intervalSelect').value;
+
+        // 更新销售趋势图
+        fetch(`{{ url_for('analysis.sales_trend') }}?start_date=${startDate}&end_date=${endDate}&interval=${interval}`)
+            .then(response => response.json())
+            .then(data => {
+                const option = {
+                    title: { text: '销售趋势' },
+                    xAxis: { type: 'category', data: data.map(item => item.date) },
+                    yAxis: { type: 'value' },
+                    series: [{
+                        data: data.map(item => item.total_sales),
+                        type: 'line'
+                    }]
+                };
+                salesTrendChart.setOption(option);
+            });
+
+        // 更新热销商品图
+        fetch(`{{ url_for('analysis.top_products') }}?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                const option = {
+                    title: { text: '热销商品Top10' },
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                    xAxis: { type: 'value' },
+                    yAxis: { type: 'category', data: data.map(item => item.product_name) },
+                    series: [{
+                        name: '销售额',
+                        type: 'bar',
+                        data: data.map(item => item.total_sales)
+                    }]
+                };
+                topProductsChart.setOption(option);
+            });
+
+        // 更新员工业绩图
+        fetch(`{{ url_for('analysis.employee_performance') }}?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                const option = {
+                    title: { text: '员工销售业绩' },
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                    xAxis: { type: 'value' },
+                    yAxis: { type: 'category', data: data.map(item => item.employee_name) },
+                    series: [{
+                        name: '销售额',
+                        type: 'bar',
+                        data: data.map(item => item.total_sales)
+                    }]
+                };
+                employeePerformanceChart.setOption(option);
+            });
+
+        // 更新库存周转率图
+        fetch("{{ url_for('analysis.inventory_turnover') }}")
+            .then(response => response.json())
+            .then(data => {
+                const option = {
+                    title: { text: '库存周转率' },
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                    xAxis: { type: 'value' },
+                    yAxis: { type: 'category', data: data.map(item => item.product_name) },
+                    series: [{
+                        name: '周转率',
+                        type: 'bar',
+                        data: data.map(item => item.turnover_rate)
+                    }]
+                };
+                inventoryTurnoverChart.setOption(option);
+            });
+    }
+
+    document.getElementById('updateAnalysisBtn').addEventListener('click', updateAnalysis);
+
+    // 初始加载
+    updateAnalysis();
+
+    // 窗口大小变化时重绘图表
+    window.addEventListener('resize', function() {
+        salesTrendChart.resize();
+        topProductsChart.resize();
+        employeePerformanceChart.resize();
+        inventoryTurnoverChart.resize();
+    });
+</script>
+{% endblock %}

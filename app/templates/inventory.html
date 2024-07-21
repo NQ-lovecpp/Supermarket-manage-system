@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}库存管理{% endblock %}
+
+{% block content %}
+<h1>库存管理</h1>
+
+<div class="actions">
+    <button id="generateReportBtn">生成库存报告</button>
+    <select id="categoryFilter">
+        <option value="">所有类别</option>
+        {% for category in categories %}
+        <option value="{{ category.category_id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" id="minStock" placeholder="最小库存">
+    <input type="number" id="maxStock" placeholder="最大库存">
+    <button id="filterInventoryBtn">筛选</button>
+</div>
+
+<table id="inventoryTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>商品名称</th>
+            <th>类别</th>
+            <th>当前库存</th>
+            <th>警戒线</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr class="{{ 'low-stock' if product.stock < (product.alert_threshold or 0) }}">
+            <td>{{ product.product_id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category.name }}</td>
+            <td>{{ product.stock }}</td>
+            <td>{{ product.alert_threshold or '未设置' }}</td>
+            <td>
+                <button class="setAlertBtn" data-id="{{ product.product_id }}">设置警戒线</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="setAlertModal" class="modal">
+    <div class="modal-content">
+        <h2>设置库存警戒线</h2>
+        <form id="setAlertForm">
+            <input type="hidden" id="setAlertProductId" name="product_id">
+            <label for="alertThreshold">警戒线:</label>
+            <input type="number" id="alertThreshold" name="alert_threshold" required>
+            <button type="submit">保存</button>
+            <button type="button" class="closeModal">取消</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 设置警戒线
+    document.querySelectorAll('.setAlertBtn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            document.getElementById('setAlertProductId').value = productId;
+            document.getElementById('setAlertModal').style.display = 'block';
+        });
+    });
+
+    document.getElementById('setAlertForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        fetch("{{ url_for('inventory.set_alert') }}", {
+            method: 'POST',
+            body: new FormData(this)
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('设置警戒线失败');
+            }
+        });
+    });
+
+    // 筛选库存
+    document.getElementById('filterInventoryBtn').addEventListener('click', function() {
+        const categoryId = document.getElementById('categoryFilter').value;
+        const minStock = document.getElementById('minStock').value;
+        const maxStock = document.getElementById('maxStock').value;
+        fetch(`{{ url_for('inventory.filter_inventory') }}?category_id=${categoryId}&min_stock=${minStock}&max_stock=${maxStock}`)
+        .then(response => response.json())
+        .then(products => {
+            const tbody = document.querySelector('#inventoryTable tbody');
+            tbody.innerHTML = '';
+            products.forEach(product => {
+                const tr = document.createElement('tr');
+                tr.className = product.stock < product.alert_threshold ? 'low-stock' : '';
+                tr.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>${product.category}</td>
+                    <td>${product.stock}</td>
+                    <td>${product.alert_threshold || '未设置'}</td>
+                    <td>
+                        <button class="setAlertBtn" data-id="${product.id}">设置警戒线</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    });
+
+    // 生成库存报告
+    document.getElementById('generateReportBtn').addEventListener('click', function() {
+        fetch("{{ url_for('inventory.generate_report') }}")
+        .then(response => response.json())
+        .then(report => {
+            // 这里可以根据需要处理报告数据，例如显示在模态框中或导出为CSV
+            console.log(report);
+            alert('库存报告已生成，请查看控制台');
+        });
+    });
+
+    // 关闭模态框
+    document.querySelectorAll('.closeModal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.modal').style.display = 'none';
+        });
+    });
+</script>
+{% endblock %}

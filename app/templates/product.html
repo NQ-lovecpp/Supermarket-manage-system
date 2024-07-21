@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}商品管理{% endblock %}
+
+{% block content %}
+<h1>商品管理</h1>
+
+<div class="actions">
+    <button id="addProductBtn">添加商品</button>
+    <input type="text" id="searchProduct" placeholder="搜索商品...">
+</div>
+
+<table id="productTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>类别</th>
+            <th>价格</th>
+            <th>库存</th>
+            <th>供应商</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.product_id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.stock }}</td>
+            <td>{{ product.supplier.name }}</td>
+            <td>
+                <button class="editProductBtn" data-id="{{ product.product_id }}">修改</button>
+                <button class="deleteProductBtn" data-id="{{ product.product_id }}">删除</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="addProductModal" class="modal">
+    <div class="modal-content">
+        <h2>添加商品</h2>
+        <form id="addProductForm">
+            <label for="name">名称:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="category">类别:</label>
+            <select id="category" name="category_id" required>
+                {% for category in categories %}
+                <option value="{{ category.category_id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="price">价格:</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+
+            <label for="stock">库存:</label>
+            <input type="number" id="stock" name="stock" required>
+
+            <label for="supplier">供应商:</label>
+            <select id="supplier" name="supplier_id" required>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.supplier_id }}">{{ supplier.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">保存</button>
+            <button type="button" class="closeModal">取消</button>
+        </form>
+    </div>
+</div>
+
+<div id="editProductModal" class="modal">
+    <div class="modal-content">
+        <h2>修改商品</h2>
+        <form id="editProductForm">
+            <input type="hidden" id="editProductId" name="id">
+
+            <label for="editName">名称:</label>
+            <input type="text" id="editName" name="name" required>
+
+            <label for="editCategory">类别:</label>
+            <select id="editCategory" name="category_id" required>
+                {% for category in categories %}
+                <option value="{{ category.category_id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="editPrice">价格:</label>
+            <input type="number" id="editPrice" name="price" step="0.01" required>
+
+            <label for="editStock">库存:</label>
+            <input type="number" id="editStock" name="stock" required>
+
+            <label for="editSupplier">供应商:</label>
+            <select id="editSupplier" name="supplier_id" required>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.supplier_id }}">{{ supplier.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">保存</button>
+            <button type="button" class="closeModal">取消</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 添加商品
+    document.getElementById('addProductBtn').addEventListener('click', function () {
+        document.getElementById('addProductModal').style.display = 'block';
+    });
+
+    document.getElementById('addProductForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        fetch("{{ url_for('product.add_product') }}", {
+            method: 'POST',
+            body: new FormData(this)
+        }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('添加商品失败');
+                }
+            });
+    });
+
+    // 修改商品
+    document.querySelectorAll('.editProductBtn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const productId = this.getAttribute('data-id');
+            fetch(`/product/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    document.getElementById('editProductId').value = product.product_id;
+                    document.getElementById('editName').value = product.name;
+                    document.getElementById('editCategory').value = product.category_id;
+                    document.getElementById('editPrice').value = product.price;
+                    document.getElementById('editStock').value = product.stock;
+                    document.getElementById('editSupplier').value = product.supplier_id;
+                    document.getElementById('editProductModal').style.display = 'block';
+                });
+        });
+    });
+
+    document.getElementById('editProductForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const productId = document.getElementById('editProductId').value;
+        fetch(`{{ url_for('product.edit_product', id=0) }}`.replace('0', productId), {
+            method: 'POST',
+            body: new FormData(this)
+        }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('修改商品失败');
+                }
+            });
+    });
+
+    // 删除商品
+    document.querySelectorAll('.deleteProductBtn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (confirm('确定要删除这个商品吗？')) {
+                const productId = this.getAttribute('data-id');
+                fetch(`{{ url_for('product.delete_product', id=0) }}`.replace('0', productId), {
+                    method: 'POST'
+                }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('删除商品失败');
+                        }
+                    });
+            }
+        });
+    });
+
+    // 搜索商品
+    document.getElementById('searchProduct').addEventListener('input', function() {
+        const query = this.value;
+        fetch(`{{ url_for('product.search_product') }}?query=${query}`)
+        .then(response => response.json())
+        .then(products => {
+            const tbody = document.querySelector('#productTable tbody');
+            tbody.innerHTML = '';
+            products.forEach(product => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>${product.category}</td>
+                    <td>${product.price}</td>
+                    <td>${product.stock}</td>
+                    <td>${product.supplier}</td>
+                    <td>
+                        <button class="editProductBtn" data-id="${product.id}">修改</button>
+                        <button class="deleteProductBtn" data-id="${product.id}">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    });
+
+    // 关闭模态框
+    document.querySelectorAll('.closeModal').forEach(btn => {
+        btn.addEventListener('click', function () {
+            this.closest('.modal').style.display = 'none';
+        });
+    });
+</script>
+{% endblock %}
